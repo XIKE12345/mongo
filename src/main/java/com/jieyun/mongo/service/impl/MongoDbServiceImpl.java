@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,6 +110,9 @@ public class MongoDbServiceImpl implements MongoDbService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    public MongoDbServiceImpl() {
+    }
+
     @Override
     public List<MongoDbDto> getDataByMongoDb() {
         long l = System.currentTimeMillis();
@@ -138,24 +142,27 @@ public class MongoDbServiceImpl implements MongoDbService {
     public List<NameAndListDto> countQuery(CountReq countReq) {
         List<NameAndListDto> lists = new ArrayList<>();
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
+        List<Document> aggregateList = new ArrayList<Document>();
         // 根据条件查询
-        Document sub_match = new Document();
-        sub_match.put("notice_time", new Document("$gt", countReq.getStartTime()).append("$lt", countReq.getEndTime()));
+        if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
+            Document sub_match = new Document();
+            sub_match.put("notice_time", new Document("$gt", countReq.getStartTime()).append("$lt", countReq.getEndTime()));
+            // 查询
+            Document match = new Document("$match", sub_match);
+            aggregateList.add(match);
+        }
 
         // 根据条件分组
         Document sub_group = new Document();
         sub_group.put("_id", new Document("$substr", Arrays.asList("$notice_time", 0, 10)));
         sub_group.put("count", new Document("$sum", 1));
 
-        // 查询
-        Document match = new Document("$match",sub_match);
         // 分组
         Document group = new Document("$group", sub_group);
         // 排序
         Document sort = new Document("$sort", new Document("_id", 1));
 
-        List<Document> aggregateList = new ArrayList<Document>();
-        aggregateList.add(match);
+
         aggregateList.add(group);
         aggregateList.add(sort);
 
@@ -186,7 +193,6 @@ public class MongoDbServiceImpl implements MongoDbService {
         henanListDto.setName("河南省");
         henanListDto.setCounts(henanCityListDtos);
         lists.add(henanListDto);
-
 
         MongoDatabase hnDb = mongoDbFactory.getDb(hnDbName);
         AggregateIterable<Document> hnAggregate = hnDb.getCollection(hnColName).aggregate(aggregateList);
