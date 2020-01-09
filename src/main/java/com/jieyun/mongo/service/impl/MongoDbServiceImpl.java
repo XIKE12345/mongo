@@ -177,11 +177,13 @@ public class MongoDbServiceImpl implements MongoDbService {
         AggregateIterable<Document> henanAggregate = henanDb.getCollection(henanColName).aggregate(aggregateList);
         List<NameAndCountDto> henanList = getNameAndCountDtos(henanAggregate);
         NameAndListDto henanListDto = new NameAndListDto();
+
         CityListDto henancityListDto = new CityListDto();
+        henancityListDto.setCityName("河南");
         henancityListDto.setCityCounts(henanList);
         List<CityListDto> henanCityListDtos = new ArrayList<>();
         henanCityListDtos.add(henancityListDto);
-        henanListDto.setName("河南");
+        henanListDto.setName("河南省");
         henanListDto.setCounts(henanCityListDtos);
         lists.add(henanListDto);
 
@@ -192,9 +194,10 @@ public class MongoDbServiceImpl implements MongoDbService {
         NameAndListDto hnListDto = new NameAndListDto();
         CityListDto hncityListDto = new CityListDto();
         hncityListDto.setCityCounts(hnList);
+        hncityListDto.setCityName("湖南");
         List<CityListDto> hncityListDtos = new ArrayList<>();
         hncityListDtos.add(hncityListDto);
-        hnListDto.setName("湖南");
+        hnListDto.setName("湖南省");
         hnListDto.setCounts(hncityListDtos);
         lists.add(hnListDto);
 
@@ -208,7 +211,6 @@ public class MongoDbServiceImpl implements MongoDbService {
 
         NameAndListDto jljlListDto = new NameAndListDto();
         jljlListDto.setName("吉林省");
-
         CityListDto jljlcityListDto = new CityListDto();
         jljlcityListDto.setCityCounts(jljlList);
         jljlcityListDto.setCityName("吉林市");
@@ -223,9 +225,6 @@ public class MongoDbServiceImpl implements MongoDbService {
 
         jljlListDto.setCounts(jljlcityListDtos);
         lists.add(jljlListDto);
-
-
-
 
         /**
          * 江苏
