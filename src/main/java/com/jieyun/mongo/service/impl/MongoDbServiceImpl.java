@@ -16,7 +16,9 @@ import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @CalssName MongoDbServiceImpl
@@ -135,27 +137,31 @@ public class MongoDbServiceImpl implements MongoDbService {
     @Override
     public List<NameAndListDto> countQuery(CountReq countReq) {
         List<NameAndListDto> lists = new ArrayList<>();
-
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
+        // 根据条件查询
+        Document sub_match = new Document();
+        sub_match.put("notice_time", new Document("$gt", countReq.getStartTime()).append("$lt", countReq.getEndTime()));
 
+        // 根据条件分组
         Document sub_group = new Document();
-        sub_group.put("_id", new Document("$substr", Arrays.asList("$notice_time",0,10)));
+        sub_group.put("_id", new Document("$substr", Arrays.asList("$notice_time", 0, 10)));
         sub_group.put("count", new Document("$sum", 1));
 
-
+        // 查询
+        Document match = new Document("$match",sub_match);
+        // 分组
         Document group = new Document("$group", sub_group);
-
+        // 排序
         Document sort = new Document("$sort", new Document("_id", 1));
 
         List<Document> aggregateList = new ArrayList<Document>();
+        aggregateList.add(match);
         aggregateList.add(group);
         aggregateList.add(sort);
 
-        MongoDatabase db = mongoDbFactory.getDb(ccgpDbName);
-
-
         MongoDatabase hljDb = mongoDbFactory.getDb(hljDbName);
-        AggregateIterable<Document> hljAggregate  = hljDb.getCollection(hljColName).aggregate(aggregateList);;
+        AggregateIterable<Document> hljAggregate = hljDb.getCollection(hljColName).aggregate(aggregateList);
+        ;
         List<NameAndCountDto> hljList = getNameAndCountDtos(hljAggregate);
         NameAndListDto hljListDto = new NameAndListDto();
         CityListDto hljcityListDto = new CityListDto();
@@ -163,7 +169,7 @@ public class MongoDbServiceImpl implements MongoDbService {
         hljcityListDto.setCityName("黑龙江");
         List<CityListDto> hljCityListDtos = new ArrayList<>();
         hljCityListDtos.add(hljcityListDto);
-        hljListDto.setName("黑龙江");
+        hljListDto.setName("黑龙江省");
         hljListDto.setCounts(hljCityListDtos);
         lists.add(hljListDto);
 
@@ -181,7 +187,7 @@ public class MongoDbServiceImpl implements MongoDbService {
 
 
         MongoDatabase hnDb = mongoDbFactory.getDb(hnDbName);
-        AggregateIterable<Document> hnAggregate  = hnDb.getCollection(hnColName).aggregate(aggregateList);
+        AggregateIterable<Document> hnAggregate = hnDb.getCollection(hnColName).aggregate(aggregateList);
         List<NameAndCountDto> hnList = getNameAndCountDtos(hnAggregate);
         NameAndListDto hnListDto = new NameAndListDto();
         CityListDto hncityListDto = new CityListDto();
@@ -193,36 +199,39 @@ public class MongoDbServiceImpl implements MongoDbService {
         lists.add(hnListDto);
 
         MongoDatabase jlDb = mongoDbFactory.getDb(jlDbName);
+        //吉林省吉林市
         AggregateIterable<Document> jljlaggregate = jlDb.getCollection(jljlColName).aggregate(aggregateList);
         List<NameAndCountDto> jljlList = getNameAndCountDtos(jljlaggregate);
+        // 吉林省长春市
+        AggregateIterable<Document> jlchaggregate = jlDb.getCollection(jlchColName).aggregate(aggregateList);
+        List<NameAndCountDto> jlchList = getNameAndCountDtos(jlchaggregate);
+
         NameAndListDto jljlListDto = new NameAndListDto();
+        jljlListDto.setName("吉林省");
+
         CityListDto jljlcityListDto = new CityListDto();
         jljlcityListDto.setCityCounts(jljlList);
         jljlcityListDto.setCityName("吉林市");
-        List<CityListDto> jljlcityListDtos = new ArrayList<>();
-        jljlcityListDtos.add(jljlcityListDto);
-        jljlListDto.setName("吉林省");
-        jljlListDto.setCounts(jljlcityListDtos);
-        lists.add(jljlListDto);
 
-        AggregateIterable<Document> jlchaggregate = jlDb.getCollection(jlchColName).aggregate(aggregateList);;
-        List<NameAndCountDto> jlchList = getNameAndCountDtos(jlchaggregate);
-        NameAndListDto jlchListDto = new NameAndListDto();
         CityListDto jlchcityListDto = new CityListDto();
         jlchcityListDto.setCityCounts(jlchList);
         jlchcityListDto.setCityName("长春市");
-        List<CityListDto> jlchcityListDtos = new ArrayList<>();
-        jlchcityListDtos.add(jlchcityListDto);
-        jlchListDto.setName("吉林省");
-        jlchListDto.setCounts(jlchcityListDtos);
-        lists.add(jlchListDto);
+
+        List<CityListDto> jljlcityListDtos = new ArrayList<>();
+        jljlcityListDtos.add(jljlcityListDto);
+        jljlcityListDtos.add(jlchcityListDto);
+
+        jljlListDto.setCounts(jljlcityListDtos);
+        lists.add(jljlListDto);
+
+
 
 
         /**
          * 江苏
          */
         MongoDatabase jshDb = mongoDbFactory.getDb(jsDbName);
-        AggregateIterable<Document> jsAggregate  = jshDb.getCollection(jsColName).aggregate(aggregateList);
+        AggregateIterable<Document> jsAggregate = jshDb.getCollection(jsColName).aggregate(aggregateList);
         List<NameAndCountDto> jsList = getNameAndCountDtos(jsAggregate);
         NameAndListDto jsListDto = new NameAndListDto();
         CityListDto jscityListDto = new CityListDto();
@@ -238,7 +247,8 @@ public class MongoDbServiceImpl implements MongoDbService {
          * 内蒙古
          */
         MongoDatabase nmgDb = mongoDbFactory.getDb(nmgDbName);
-        AggregateIterable<Document> nmgAggregate  = nmgDb.getCollection(nmgColName).aggregate(aggregateList);;
+        AggregateIterable<Document> nmgAggregate = nmgDb.getCollection(nmgColName).aggregate(aggregateList);
+        ;
         List<NameAndCountDto> nmgList = getNameAndCountDtos(nmgAggregate);
         NameAndListDto nmgListDto = new NameAndListDto();
         CityListDto nmgcityListDto = new CityListDto();
@@ -254,7 +264,8 @@ public class MongoDbServiceImpl implements MongoDbService {
          * 西藏
          */
         MongoDatabase xizangDb = mongoDbFactory.getDb(xizangDbName);
-        AggregateIterable<Document> xizangAggregate  = xizangDb.getCollection(xizangColName).aggregate(aggregateList);;
+        AggregateIterable<Document> xizangAggregate = xizangDb.getCollection(xizangColName).aggregate(aggregateList);
+        ;
         List<NameAndCountDto> xizangList = getNameAndCountDtos(xizangAggregate);
         NameAndListDto xizangListDto = new NameAndListDto();
         CityListDto xizangcityListDto = new CityListDto();
