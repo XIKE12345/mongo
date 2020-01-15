@@ -12,6 +12,7 @@ import lombok.Data;
  **/
 @Data
 public class CountReq {
+
     private String startTime;
     private String endTime;
 }

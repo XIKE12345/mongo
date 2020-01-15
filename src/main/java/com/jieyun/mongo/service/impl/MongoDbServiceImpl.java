@@ -138,6 +138,12 @@ public class MongoDbServiceImpl implements MongoDbService {
         return dbObjects;
     }
 
+    /**
+     * 统计MongoDb中每天每个省的条数
+     *
+     * @param countReq
+     * @return
+     */
     @Override
     public List<NameAndListDto> countQuery(CountReq countReq) {
         List<NameAndListDto> lists = new ArrayList<>();
@@ -159,11 +165,10 @@ public class MongoDbServiceImpl implements MongoDbService {
 
         // 分组
         Document group = new Document("$group", sub_group);
-        // 排序
-        Document sort = new Document("$sort", new Document("_id", 1));
-
-
         aggregateList.add(group);
+
+        // 排序（对_id字段进行升序排列）
+        Document sort = new Document("$sort", new Document("notice_time", 1));
         aggregateList.add(sort);
 
         MongoDatabase hljDb = mongoDbFactory.getDb(hljDbName);
@@ -253,7 +258,7 @@ public class MongoDbServiceImpl implements MongoDbService {
          */
         MongoDatabase nmgDb = mongoDbFactory.getDb(nmgDbName);
         AggregateIterable<Document> nmgAggregate = nmgDb.getCollection(nmgColName).aggregate(aggregateList);
-        ;
+
         List<NameAndCountDto> nmgList = getNameAndCountDtos(nmgAggregate);
         NameAndListDto nmgListDto = new NameAndListDto();
         CityListDto nmgcityListDto = new CityListDto();
