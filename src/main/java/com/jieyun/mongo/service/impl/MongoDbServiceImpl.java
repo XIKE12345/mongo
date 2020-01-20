@@ -168,12 +168,12 @@ public class MongoDbServiceImpl implements MongoDbService {
         aggregateList.add(group);
 
         // 排序（对_id字段进行升序排列）
-        Document sort = new Document("$sort", new Document("notice_time", 1));
+        Document sort = new Document("$sort", new Document("_id", 1));
         aggregateList.add(sort);
 
         MongoDatabase hljDb = mongoDbFactory.getDb(hljDbName);
         AggregateIterable<Document> hljAggregate = hljDb.getCollection(hljColName).aggregate(aggregateList);
-        ;
+
         List<NameAndCountDto> hljList = getNameAndCountDtos(hljAggregate);
         NameAndListDto hljListDto = new NameAndListDto();
         CityListDto hljcityListDto = new CityListDto();
