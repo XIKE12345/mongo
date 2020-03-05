@@ -13,8 +13,24 @@ import lombok.Data;
 @Data
 public class NameAndCountDto {
 
+    /**
+     * 总条数
+     */
     private long count;
 
+    /**
+     * 时间
+     */
     private String time;
+
+    /**
+     * 网站名称
+     */
+    private String siteName;
+
+    /**
+     * 网站域名
+     */
+    private String siteUrl;
 
 }

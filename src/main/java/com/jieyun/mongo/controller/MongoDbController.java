@@ -48,7 +48,7 @@ public class MongoDbController {
      *
      * @return
      */
-    @PostMapping(value =  "/count")
+    @PostMapping(value = "/count")
     public List<NameAndListDto> queryCountByTime(@RequestBody CountReq countReq) {
         List<NameAndListDto> nameAndList = mongoDbService.countQuery(countReq);
         return nameAndList;
