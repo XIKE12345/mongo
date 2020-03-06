@@ -107,8 +107,10 @@ public class MongoDbServiceImpl implements MongoDbService {
         subProject.put("$project", map);
         aggregateList.add(subProject);
 
-
+        // 分组条件
         Document groupDoc = new Document();
+
+        // groupDoc.append("notice_time", new Document("$substr", Arrays.asList("$notice_time", 0, 10)));
 
         groupDoc.append("time_stamp", new Document("$dateToString", new Document("format", "%Y.%m.%d").append("date",
                 new Document("$add", Arrays.asList(new Date(0), "$time_stamp")))));
@@ -121,14 +123,15 @@ public class MongoDbServiceImpl implements MongoDbService {
         Document group = new Document("$group", groupDocs);
         aggregateList.add(group);
 
-        Document skipDoc = new Document("$skip", countReq.getPageNum());
+        Document sortDoc = new Document("$sort", new Document("time_stamp", -1));
+        aggregateList.add(sortDoc);
+
+        Document skipDoc = new Document("$skip", (countReq.getPageNum() - 1) * countReq.getPageSize());
         aggregateList.add(skipDoc);
 
         Document limitDoc = new Document("$limit", countReq.getPageSize());
         aggregateList.add(limitDoc);
 
-        Document sortDoc = new Document("$sort", new Document("_id", -1));
-        aggregateList.add(sortDoc);
 
         MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
         AggregateIterable<Document> hljAggregate = hljDb.getCollection(ccgpColName).aggregate(aggregateList);
