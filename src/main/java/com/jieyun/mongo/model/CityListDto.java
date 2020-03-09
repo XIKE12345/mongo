@@ -19,4 +19,6 @@ public class CityListDto {
      */
     private List<NameAndCountDto> cityCounts;
     private String cityName;
+
+    private int sum;
 }

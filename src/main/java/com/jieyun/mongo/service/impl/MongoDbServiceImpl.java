@@ -123,7 +123,7 @@ public class MongoDbServiceImpl implements MongoDbService {
         Document group = new Document("$group", groupDocs);
         aggregateList.add(group);
 
-        Document sortDoc = new Document("$sort", new Document("time_stamp", -1));
+        Document sortDoc = new Document("$sort", new Document("site", -1));
         aggregateList.add(sortDoc);
 
         Document skipDoc = new Document("$skip", (countReq.getPageNum() - 1) * countReq.getPageSize());
@@ -141,10 +141,12 @@ public class MongoDbServiceImpl implements MongoDbService {
         CityListDto cityListDto = new CityListDto();
         cityListDto.setCityCounts(dtoList);
         cityListDto.setCityName("全国");
+        cityListDto.setSum(dtoList.size());
         List<CityListDto> hljCityListDtos = new ArrayList<>();
         hljCityListDtos.add(cityListDto);
         nameAndListDto.setName("全国");
         nameAndListDto.setCounts(hljCityListDtos);
+
         lists.add(nameAndListDto);
 
         return lists;
