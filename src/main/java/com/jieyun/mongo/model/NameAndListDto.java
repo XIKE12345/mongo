@@ -19,8 +19,6 @@ public class NameAndListDto {
      */
     private String name;
 
-    /**
-     * 市
-     */
+
     private List<CityListDto> counts;
 }
