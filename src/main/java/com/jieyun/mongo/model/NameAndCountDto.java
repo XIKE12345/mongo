@@ -1,7 +1,6 @@
 package com.jieyun.mongo.model;
 
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @CalssName NameAndCountDto
@@ -17,12 +16,14 @@ public class NameAndCountDto {
     /**
      * 总条数
      */
-    private long count;
+    private Object count;
+    private Object id;
 
     /**
      * 时间
      */
     private Object time;
+    private Object timeStamp;
 
     /**
      * 网站名称
@@ -30,11 +31,11 @@ public class NameAndCountDto {
     private Object siteName;
 
     /**
-     * 网站域名
+     * 网站Url
      */
     private Object siteUrl;
     /**
-     * 网站域名
+     *
      */
     private Object doc;
 

@@ -3,11 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="a8cd24ee-a82d-4e3a-bbe4-18045150e9ff" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/model/CityListDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/model/CityListDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/model/NameAndListDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/model/NameAndListDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/controller/MongoDbController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/controller/MongoDbController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/model/NameAndCountDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/model/NameAndCountDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/service/MongoDbService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/service/MongoDbService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/service/impl/MongoDbServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/jieyun/mongo/service/impl/MongoDbServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/model/CityListDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/model/CityListDto.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/model/NameAndListDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/model/NameAndListDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/controller/MongoDbController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/controller/MongoDbController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/model/NameAndCountDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/model/NameAndCountDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/service/MongoDbService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/service/MongoDbService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/service/impl/MongoDbServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/jieyun/mongo/service/impl/MongoDbServiceImpl.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -80,10 +84,10 @@
     <treeState>
       <expand>
         <path>
-          <item name="Found 2 services " type="fcff1e1b:RestServiceStructure$RootNode" />
+          <item name="Found 4 services " type="fcff1e1b:RestServiceStructure$RootNode" />
         </path>
         <path>
-          <item name="Found 2 services " type="fcff1e1b:RestServiceStructure$RootNode" />
+          <item name="Found 4 services " type="fcff1e1b:RestServiceStructure$RootNode" />
           <item name="mongo" type="c588b436:RestServiceStructure$ProjectNode" />
         </path>
       </expand>
@@ -210,7 +214,21 @@
       <option name="project" value="LOCAL" />
       <updated>1583488205430</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="聚合统计，调整">
+      <created>1583746796935</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1583746796935</updated>
+    </task>
+    <task id="LOCAL-00011" summary="聚合统计，调整">
+      <created>1583746821554</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1583746821554</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -231,7 +249,8 @@
     <MESSAGE value="修改Mongo分组查询" />
     <MESSAGE value="修改。" />
     <MESSAGE value="聚合统计" />
-    <option name="LAST_COMMIT_MESSAGE" value="聚合统计" />
+    <MESSAGE value="聚合统计，调整" />
+    <option name="LAST_COMMIT_MESSAGE" value="聚合统计，调整" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2213" y="328" key="#com.intellij.ide.util.MemberChooser" timestamp="1583483761260">
@@ -243,63 +262,63 @@
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state x="1915" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578544811867" />
-    <state x="2029" y="210" key="CommitChangelistDialog2" timestamp="1583746796571">
+    <state x="2029" y="210" key="CommitChangelistDialog2" timestamp="1583746821264">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
-    <state x="2029" y="210" key="CommitChangelistDialog2/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583746796571" />
-    <state width="483" height="466" key="DebuggerActiveHint" timestamp="1583482686890">
+    <state x="2029" y="210" key="CommitChangelistDialog2/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583746821264" />
+    <state width="484" height="466" key="DebuggerActiveHint" timestamp="1583831943304">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="460" height="466" key="DebuggerActiveHint/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578477197111" />
-    <state width="483" height="466" key="DebuggerActiveHint/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583482686890" />
-    <state width="1878" height="309" key="GridCell.Tab.0.bottom" timestamp="1583737966615">
+    <state width="484" height="466" key="DebuggerActiveHint/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583831943304" />
+    <state width="1878" height="370" key="GridCell.Tab.0.bottom" timestamp="1583834141230">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.0.bottom/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282921" />
     <state width="1398" height="289" key="GridCell.Tab.0.bottom/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227196" />
-    <state width="1878" height="309" key="GridCell.Tab.0.bottom/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966615" />
-    <state width="1878" height="309" key="GridCell.Tab.0.center" timestamp="1583737966613">
+    <state width="1878" height="370" key="GridCell.Tab.0.bottom/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141230" />
+    <state width="1878" height="370" key="GridCell.Tab.0.center" timestamp="1583834141227">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.0.center/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282919" />
     <state width="1398" height="289" key="GridCell.Tab.0.center/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227194" />
-    <state width="1878" height="309" key="GridCell.Tab.0.center/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966613" />
-    <state width="1878" height="309" key="GridCell.Tab.0.left" timestamp="1583737966611">
+    <state width="1878" height="370" key="GridCell.Tab.0.center/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141227" />
+    <state width="1878" height="370" key="GridCell.Tab.0.left" timestamp="1583834141226">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.0.left/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282917" />
     <state width="1398" height="289" key="GridCell.Tab.0.left/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227193" />
-    <state width="1878" height="309" key="GridCell.Tab.0.left/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966611" />
-    <state width="1878" height="309" key="GridCell.Tab.0.right" timestamp="1583737966614">
+    <state width="1878" height="370" key="GridCell.Tab.0.left/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141226" />
+    <state width="1878" height="370" key="GridCell.Tab.0.right" timestamp="1583834141229">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.0.right/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282920" />
     <state width="1398" height="289" key="GridCell.Tab.0.right/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227195" />
-    <state width="1878" height="309" key="GridCell.Tab.0.right/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966614" />
-    <state width="1878" height="309" key="GridCell.Tab.1.bottom" timestamp="1583737966475">
+    <state width="1878" height="370" key="GridCell.Tab.0.right/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141229" />
+    <state width="1878" height="370" key="GridCell.Tab.1.bottom" timestamp="1583834141234">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.1.bottom/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282925" />
     <state width="1398" height="289" key="GridCell.Tab.1.bottom/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227199" />
-    <state width="1878" height="309" key="GridCell.Tab.1.bottom/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966475" />
-    <state width="1878" height="309" key="GridCell.Tab.1.center" timestamp="1583737966474">
+    <state width="1878" height="370" key="GridCell.Tab.1.bottom/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141234" />
+    <state width="1878" height="370" key="GridCell.Tab.1.center" timestamp="1583834141232">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.1.center/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282923" />
     <state width="1398" height="289" key="GridCell.Tab.1.center/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227197" />
-    <state width="1878" height="309" key="GridCell.Tab.1.center/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966474" />
-    <state width="1878" height="309" key="GridCell.Tab.1.left" timestamp="1583737966474">
+    <state width="1878" height="370" key="GridCell.Tab.1.center/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141232" />
+    <state width="1878" height="370" key="GridCell.Tab.1.left" timestamp="1583834141232">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.1.left/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282922" />
     <state width="1398" height="289" key="GridCell.Tab.1.left/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227197" />
-    <state width="1878" height="309" key="GridCell.Tab.1.left/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966474" />
-    <state width="1878" height="309" key="GridCell.Tab.1.right" timestamp="1583737966475">
+    <state width="1878" height="370" key="GridCell.Tab.1.left/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141232" />
+    <state width="1878" height="370" key="GridCell.Tab.1.right" timestamp="1583834141233">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state width="1878" height="405" key="GridCell.Tab.1.right/0.23.1440.823/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578483282924" />
     <state width="1398" height="289" key="GridCell.Tab.1.right/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565227198" />
-    <state width="1878" height="309" key="GridCell.Tab.1.right/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583737966475" />
+    <state width="1878" height="370" key="GridCell.Tab.1.right/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583834141233" />
     <state x="1938" y="273" key="Maven.ArtifactSearchDialog" timestamp="1578464618472">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
@@ -312,19 +331,19 @@
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state x="1901" y="250" key="SettingsEditor/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1578565441225" />
-    <state x="2000" y="351" key="Vcs.Push.Dialog.v2" timestamp="1583488210852">
+    <state x="2000" y="351" key="Vcs.Push.Dialog.v2" timestamp="1583746827610">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
-    <state x="2000" y="351" key="Vcs.Push.Dialog.v2/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583488210852" />
+    <state x="2000" y="351" key="Vcs.Push.Dialog.v2/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583746827610" />
     <state x="1540" y="123" width="1720" height="977" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1583487695174">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state x="1540" y="123" width="1720" height="977" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583487695174" />
-    <state x="1969" y="373" key="com.intellij.ide.util.TipDialog" timestamp="1583718211490">
+    <state x="1969" y="373" key="com.intellij.ide.util.TipDialog" timestamp="1583803972080">
       <screen x="1440" y="23" width="1920" height="1177" />
     </state>
     <state x="397" y="268" key="com.intellij.ide.util.TipDialog/0.23.1440.825/1440.23.1920.1177@0.23.1440.825" timestamp="1578565122260" />
-    <state x="1969" y="373" key="com.intellij.ide.util.TipDialog/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583718211490" />
+    <state x="1969" y="373" key="com.intellij.ide.util.TipDialog/0.23.1440.825/1440.23.1920.1177@1440.23.1920.1177" timestamp="1583803972080" />
     <state x="397" y="268" key="com.intellij.ide.util.TipDialog/0.23.1440.825@0.23.1440.825" timestamp="1578492497483" />
     <state x="2188" y="535" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1583476870316">
       <screen x="1440" y="23" width="1920" height="1177" />

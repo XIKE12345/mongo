@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -82,20 +83,20 @@ public class MongoDbServiceImpl implements MongoDbService {
         Long startTime = 0L;
         Long endTime = 0L;
         try {
-            startTime = MongoDbServiceImpl.dateToStamp(countReq.getStartTime() + " 00:00:00");
-            endTime = MongoDbServiceImpl.dateToStamp(countReq.getEndTime() + " 23:59:59");
+            if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
+                startTime = MongoDbServiceImpl.dateToStamp(countReq.getStartTime() + " 00:00:00");
+                endTime = MongoDbServiceImpl.dateToStamp(countReq.getEndTime() + " 23:59:59");
+                // 根据条件查询
+                Document sub_match = new Document();
+                sub_match.put("time_stamp", new Document("$gt", startTime).append("$lt", endTime));
+                // 查询
+                Document match = new Document("$match", sub_match);
+                aggregateList.add(match);
+            }
         } catch (Exception e) {
             log.error("时间转化异常");
         }
 
-        // 根据条件查询
-        if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
-            Document sub_match = new Document();
-            sub_match.put("time_stamp", new Document("$gt", startTime).append("$lt", endTime));
-            // 查询
-            Document match = new Document("$match", sub_match);
-            aggregateList.add(match);
-        }
 
         // 只查 notice_time、site、site_name、_id 这几个字段
         Document subProject = new Document();
@@ -123,7 +124,7 @@ public class MongoDbServiceImpl implements MongoDbService {
         Document group = new Document("$group", groupDocs);
         aggregateList.add(group);
 
-        Document sortDoc = new Document("$sort", new Document("site", -1));
+        Document sortDoc = new Document("$sort", new Document("site_name)", -1));
         aggregateList.add(sortDoc);
 
         Document skipDoc = new Document("$skip", (countReq.getPageNum() - 1) * countReq.getPageSize());
@@ -131,7 +132,6 @@ public class MongoDbServiceImpl implements MongoDbService {
 
         Document limitDoc = new Document("$limit", countReq.getPageSize());
         aggregateList.add(limitDoc);
-
 
         MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
         AggregateIterable<Document> hljAggregate = hljDb.getCollection(ccgpColName).aggregate(aggregateList);
@@ -149,6 +149,251 @@ public class MongoDbServiceImpl implements MongoDbService {
 
         lists.add(nameAndListDto);
 
+        return lists;
+    }
+
+    /**
+     * 获取所有网站列表统计（每天每个网站的爬取数量，入新表，用来处理历史数据）--- 手动触发
+     */
+    @Override
+    public void getAllSiteListFromMongo(CountReq countReq) {
+        MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
+        List<Document> aggregateList = new ArrayList<>();
+
+        Long startTime = 0L;
+        Long endTime = 0L;
+        if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
+            try {
+                startTime = MongoDbServiceImpl.dateToStamp(countReq.getStartTime() + " 00:00:00");
+                endTime = MongoDbServiceImpl.dateToStamp(countReq.getEndTime() + " 23:59:59");
+                // 查询条件
+                Document sub_match = new Document();
+                sub_match.put("time_stamp", new Document("$gt", startTime).append("$lt", endTime));
+                // 查询
+                Document match = new Document("$match", sub_match);
+                aggregateList.add(match);
+            } catch (Exception e) {
+                log.error("时间转化异常");
+            }
+        }
+
+        // 分组条件
+        Document groupDoc = new Document();
+        groupDoc.append("site", "$site");
+        groupDoc.append("site_name", "$site_name");
+        groupDoc.append("time_stamp_format", new Document("$dateToString", new Document("format", "%Y.%m.%d").append("date",
+                new Document("$add", Arrays.asList(new Date(0), "$time_stamp")))));
+
+        Document groupDocs = new Document();
+        groupDocs.append("count", new Document("$sum", 1));
+        // 分组
+        groupDocs.append("_id", groupDoc);
+        // 将area字段和time_stamp带出来
+        groupDocs.append("area", new Document("$first", "$area"));
+        groupDocs.append("time_stamp", new Document("$first", "$time_stamp"));
+
+        // 分组
+        Document group = new Document("$group", groupDocs);
+        aggregateList.add(group);
+
+        // 只查 notice_time、site、site_name、_id 这几个字段
+        Document subProject = new Document();
+        Map<Object, Object> map = new HashMap<>(16);
+        map.put("_id", 1);
+        map.put("site", 1);
+        map.put("site_name", 1);
+        map.put("area", 1);
+        map.put("time_stamp", 1);
+        map.put("time_stamp_format", 1);
+        map.put("count", 1);
+        subProject.put("$project", map);
+        aggregateList.add(subProject);
+
+        // 排序 根据名称排序
+        Document sortDoc = new Document("$sort", new Document("site_name", -1));
+        aggregateList.add(sortDoc);
+
+        try {
+            // 查询统计
+            MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
+            AggregateIterable<Document> hljAggregate = hljDb.getCollection(ccgpColName).aggregate(aggregateList);
+
+            MongoCursor<Document> cursor = hljAggregate.iterator();
+            List<Document> documentList = new ArrayList<Document>();
+            // 处理查询出来的数据
+            while (cursor.hasNext()) {
+                Document itemDoc = cursor.next();
+                Map doc = (Map) itemDoc.get("_id");
+                String site = (String) doc.get("site");
+                String siteName = (String) doc.get("site_name");
+                String timeStampFormat = (String) doc.get("time_stamp_format");
+                itemDoc.put("_id", UUID.randomUUID().toString());
+                itemDoc.put("site", site);
+                itemDoc.put("site_name", siteName);
+                itemDoc.put("time_stamp_format", timeStampFormat);
+                documentList.add(itemDoc);
+            }
+            // 将查询出来的数据重新存入另一张表
+            hljDb.getCollection("t_trade_count").insertMany(documentList);
+        } catch (Exception e) {
+            log.error("统计插入MongoDb异常", e);
+        }
+    }
+
+    /**
+     * 实时处理每天每个网站的爬取数量，并入库（自动）每天 23:55 跑一次，之后更新t_trade_count
+     */
+    @Scheduled(cron = "0 0 23 55 * ?")
+    public void autoHandleStatics(CountReq countReq) {
+        MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
+        List<Document> aggregateList = new ArrayList<>();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        long zreoTime = calendar.getTime().getTime();
+        long timeInMillis = Calendar.getInstance().getTimeInMillis();
+        // 查询条件
+        Document sub_match = new Document();
+        sub_match.put("time_stamp", new Document("$gt", zreoTime).append("$lt", timeInMillis));
+        Document match = new Document("$match", sub_match);
+        aggregateList.add(match);
+
+        // 分组条件
+        Document groupDoc = new Document();
+        groupDoc.append("site", "$site");
+        groupDoc.append("site_name", "$site_name");
+        groupDoc.append("time_stamp_format", new Document("$dateToString", new Document("format", "%Y.%m.%d").append("date",
+                new Document("$add", Arrays.asList(new Date(0), "$time_stamp")))));
+
+        Document groupDocs = new Document();
+        groupDocs.append("count", new Document("$sum", 1));
+        // 分组
+        groupDocs.append("_id", groupDoc);
+        // 将area字段和time_stamp带出来
+        groupDocs.append("area", new Document("$first", "$area"));
+        groupDocs.append("time_stamp", new Document("$first", "$time_stamp"));
+
+        // 分组
+        Document group = new Document("$group", groupDocs);
+        aggregateList.add(group);
+
+        // 只查 notice_time、site、site_name、_id 这几个字段
+        Document subProject = new Document();
+        Map<Object, Object> map = new HashMap<>(16);
+        map.put("_id", 1);
+        map.put("site", 1);
+        map.put("site_name", 1);
+        map.put("area", 1);
+        map.put("time_stamp", 1);
+        map.put("time_stamp_format", 1);
+        map.put("count", 1);
+        subProject.put("$project", map);
+        aggregateList.add(subProject);
+
+        // 排序 根据名称排序
+        Document sortDoc = new Document("$sort", new Document("site_name", -1));
+        aggregateList.add(sortDoc);
+
+        try {
+            MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
+            AggregateIterable<Document> hljAggregate = hljDb.getCollection(ccgpColName).aggregate(aggregateList);
+
+            MongoCursor<Document> cursor = hljAggregate.iterator();
+            List<Document> documentList = new ArrayList<Document>();
+            // 处理查询出来的数据
+            while (cursor.hasNext()) {
+                Document itemDoc = cursor.next();
+                Map doc = (Map) itemDoc.get("_id");
+                String site = (String) doc.get("site");
+                String siteName = (String) doc.get("site_name");
+                String timeStampFormat = (String) doc.get("time_stamp_format");
+                itemDoc.put("_id", UUID.randomUUID().toString());
+                itemDoc.put("site", site);
+                itemDoc.put("site_name", siteName);
+                itemDoc.put("time_stamp_format", timeStampFormat);
+                documentList.add(itemDoc);
+            }
+            // 将查询出来的数据重新存入另一张表
+            hljDb.getCollection("t_trade_count").insertMany(documentList);
+        } catch (Exception e) {
+            log.error("统计插入MongoDb异常", e);
+        }
+    }
+
+    /**
+     * 查询 每天每个网站的爬虫数量
+     *
+     * @param countReq 统计请求实体
+     * @return lists
+     */
+
+    @Override
+    public List<NameAndCountDto> getEveryDayCounts(CountReq countReq) {
+        List<NameAndCountDto> lists = new ArrayList<>();
+        MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
+        List<Document> aggregateList = new ArrayList<>();
+        Long startTime = 0L;
+        Long endTime = 0L;
+        try {
+            if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
+                startTime = MongoDbServiceImpl.dateToStamp(countReq.getStartTime() + " 00:00:00");
+                endTime = MongoDbServiceImpl.dateToStamp(countReq.getEndTime() + " 23:59:59");
+                // 根据条件查询
+                Document sub_match = new Document();
+                sub_match.put("time_stamp", new Document("$gt", startTime).append("$lt", endTime));
+                // 查询
+                Document match = new Document("$match", sub_match);
+                aggregateList.add(match);
+            }
+        } catch (Exception e) {
+            log.error("时间转化异常");
+        }
+
+        // 只查 notice_time、site、site_name、_id 这几个字段
+        Document subProject = new Document();
+        Map<Object, Object> map = new HashMap<>(16);
+        map.put("_id", 1);
+        map.put("time_stamp", 1);
+        map.put("time_stamp_format", 1);
+        map.put("site", 1);
+        map.put("site_name", 1);
+        map.put("count", 1);
+        subProject.put("$project", map);
+        aggregateList.add(subProject);
+
+        Document sortDoc = new Document("$sort", new Document("time_stamp)", -1));
+        aggregateList.add(sortDoc);
+
+        Document skipDoc = new Document("$skip", (countReq.getPageNum() - 1) * countReq.getPageSize());
+        aggregateList.add(skipDoc);
+
+        Document limitDoc = new Document("$limit", countReq.getPageSize());
+        aggregateList.add(limitDoc);
+
+        MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
+        AggregateIterable<Document> hljAggregate = hljDb.getCollection("t_trade_count").aggregate(aggregateList);
+
+        MongoCursor<Document> cursor = hljAggregate.iterator();
+        while (cursor.hasNext()) {
+            NameAndCountDto nameAndCountDto = new NameAndCountDto();
+            Document itemDoc = cursor.next();
+            String id = (String) itemDoc.get("_id");
+            Object count = itemDoc.get("count");
+            Object timeStamp = itemDoc.get("time_stamp");
+            Object site = itemDoc.get("site");
+            Object siteName = itemDoc.get("site_name");
+            Object timeStampFormat = itemDoc.get("time_stamp_format");
+            nameAndCountDto.setId(id);
+            nameAndCountDto.setCount(count);
+            nameAndCountDto.setSiteName(siteName);
+            nameAndCountDto.setSiteUrl(site);
+            nameAndCountDto.setTime(timeStamp);
+            nameAndCountDto.setTimeStamp(timeStampFormat);
+            lists.add(nameAndCountDto);
+        }
         return lists;
     }
 

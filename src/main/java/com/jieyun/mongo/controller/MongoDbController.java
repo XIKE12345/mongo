@@ -1,6 +1,7 @@
 package com.jieyun.mongo.controller;
 
 import com.jieyun.mongo.model.MongoDbDto;
+import com.jieyun.mongo.model.NameAndCountDto;
 import com.jieyun.mongo.model.NameAndListDto;
 import com.jieyun.mongo.model.request.CountReq;
 import com.jieyun.mongo.service.MongoDbService;
@@ -44,7 +45,7 @@ public class MongoDbController {
     }
 
     /**
-     * 从Mongo获取数据
+     * 从MongoDb获取数据
      *
      * @return
      */
@@ -53,4 +54,28 @@ public class MongoDbController {
         List<NameAndListDto> nameAndList = mongoDbService.countQuery(countReq);
         return nameAndList;
     }
+
+    /**
+     * 手动触发MongoDb，统计历史数据，存入t_trade_test_count 表中
+     *
+     * @param countReq 请求参数
+     */
+    @PostMapping(value = "/insert/statics/from/mongo")
+    public void getAllSiteListFromMongo(@RequestBody CountReq countReq) {
+        mongoDbService.getAllSiteListFromMongo(countReq);
+    }
+
+
+    /**
+     * 查每个网站每天的条数
+     *
+     * @param countReq 请求参数
+     */
+    @PostMapping(value = "/get/everyDay/count")
+    public List<NameAndCountDto> getEveryDayCounts(@RequestBody CountReq countReq) {
+        List<NameAndCountDto> everyDayCounts = mongoDbService.getEveryDayCounts(countReq);
+        return everyDayCounts;
+    }
+
+
 }
