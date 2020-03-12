@@ -244,10 +244,10 @@ public class MongoDbServiceImpl implements MongoDbService {
      * 实时处理每天每个网站的爬取数量，并入库（自动）每天 23:55 跑一次，之后更新t_trade_count
      */
     @Scheduled(cron = "0 0 23 55 * ?")
-    public void autoHandleStatics(CountReq countReq) {
+    public void autoHandleStatics() {
+        log.info("----------auto------定时统计当天爬虫数量开始------------------");
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
         List<Document> aggregateList = new ArrayList<>();
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -300,7 +300,7 @@ public class MongoDbServiceImpl implements MongoDbService {
         try {
             MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
             AggregateIterable<Document> hljAggregate = hljDb.getCollection(ccgpColName).aggregate(aggregateList);
-
+            log.info("---------auto-------------处理统计开始----------------");
             MongoCursor<Document> cursor = hljAggregate.iterator();
             List<Document> documentList = new ArrayList<Document>();
             // 处理查询出来的数据
@@ -317,7 +317,9 @@ public class MongoDbServiceImpl implements MongoDbService {
                 documentList.add(itemDoc);
             }
             // 将查询出来的数据重新存入另一张表
+            log.info("--------auto--------------统计数据入库开始----------------");
             hljDb.getCollection("t_trade_count").insertMany(documentList);
+            log.info("--------auto--------------统计数据入库结束----------------");
         } catch (Exception e) {
             log.error("统计插入MongoDb异常", e);
         }
@@ -335,19 +337,21 @@ public class MongoDbServiceImpl implements MongoDbService {
         List<NameAndCountDto> lists = new ArrayList<>();
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
         List<Document> aggregateList = new ArrayList<>();
-        Long startTime = 0L;
-        Long endTime = 0L;
+
         try {
+            Document sub_match = new Document();
             if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
-                startTime = MongoDbServiceImpl.dateToStamp(countReq.getStartTime() + " 00:00:00");
-                endTime = MongoDbServiceImpl.dateToStamp(countReq.getEndTime() + " 23:59:59");
+                String startTime = countReq.getStartTime();
+                String endTime = countReq.getEndTime();
                 // 根据条件查询
-                Document sub_match = new Document();
-                sub_match.put("time_stamp", new Document("$gt", startTime).append("$lt", endTime));
-                // 查询
-                Document match = new Document("$match", sub_match);
-                aggregateList.add(match);
+                sub_match.put("time_stamp_format", new Document("$gte", startTime).append("$lte", endTime));
             }
+            if (!StringUtils.isEmpty(countReq.getSiteName())) {
+                sub_match.put("site_name", new Document("$regex", countReq.getSiteName()));
+            }
+            // 查询
+            Document match = new Document("$match", sub_match);
+            aggregateList.add(match);
         } catch (Exception e) {
             log.error("时间转化异常");
         }
@@ -364,7 +368,7 @@ public class MongoDbServiceImpl implements MongoDbService {
         subProject.put("$project", map);
         aggregateList.add(subProject);
 
-        Document sortDoc = new Document("$sort", new Document("time_stamp)", -1));
+        Document sortDoc = new Document("$sort", new Document("time_stamp_format)", -1));
         aggregateList.add(sortDoc);
 
         Document skipDoc = new Document("$skip", (countReq.getPageNum() - 1) * countReq.getPageSize());

@@ -23,6 +23,11 @@ public class CountReq {
     private String endTime;
 
     /**
+     * 网站名
+     */
+    private String siteName;
+
+    /**
      * 当前页
      */
     private int pageNum;
