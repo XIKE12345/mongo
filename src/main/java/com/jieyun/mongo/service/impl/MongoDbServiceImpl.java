@@ -159,9 +159,9 @@ public class MongoDbServiceImpl implements MongoDbService {
     public void getAllSiteListFromMongo(CountReq countReq) {
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
         List<Document> aggregateList = new ArrayList<>();
-
-        Long startTime = 0L;
-        Long endTime = 0L;
+        log.info("-------------手动触发统计程序---------------");
+        Long startTime;
+        Long endTime;
         if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
             try {
                 startTime = MongoDbServiceImpl.dateToStamp(countReq.getStartTime() + " 00:00:00");
@@ -212,12 +212,11 @@ public class MongoDbServiceImpl implements MongoDbService {
         // 排序 根据名称排序
         Document sortDoc = new Document("$sort", new Document("site_name", -1));
         aggregateList.add(sortDoc);
-
+        log.info("--------------mongodb查询条件是-----{}",aggregateList.toString());
         try {
             // 查询统计
             MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
             AggregateIterable<Document> hljAggregate = hljDb.getCollection(ccgpColName).aggregate(aggregateList);
-
             MongoCursor<Document> cursor = hljAggregate.iterator();
             List<Document> documentList = new ArrayList<Document>();
             // 处理查询出来的数据
@@ -236,14 +235,14 @@ public class MongoDbServiceImpl implements MongoDbService {
             // 将查询出来的数据重新存入另一张表
             hljDb.getCollection("t_trade_count").insertMany(documentList);
         } catch (Exception e) {
-            log.error("统计插入MongoDb异常", e);
+            log.error("手动统计插入MongoDb异常", e);
         }
     }
 
     /**
-     * 实时处理每天每个网站的爬取数量，并入库（自动）每天 23:55 跑一次，之后更新t_trade_count
+     * 实时处理每天每个网站的爬取数量，并入库（自动）。每天 23:55 跑一次，之后更新t_trade_count
      */
-    @Scheduled(cron = "0 0 23 55 * ?")
+    @Scheduled(cron = "0 15 23 ? * * ")
     public void autoHandleStatics() {
         log.info("----------auto------定时统计当天爬虫数量开始------------------");
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
@@ -337,7 +336,7 @@ public class MongoDbServiceImpl implements MongoDbService {
         List<NameAndCountDto> lists = new ArrayList<>();
         MongoDbFactory mongoDbFactory = mongoTemplate.getMongoDbFactory();
         List<Document> aggregateList = new ArrayList<>();
-
+        log.info("---------------查询网站数量----------------");
         try {
             Document sub_match = new Document();
             if (!StringUtils.isEmpty(countReq.getStartTime()) && !StringUtils.isEmpty(countReq.getEndTime())) {
@@ -376,6 +375,7 @@ public class MongoDbServiceImpl implements MongoDbService {
 
         Document limitDoc = new Document("$limit", countReq.getPageSize());
         aggregateList.add(limitDoc);
+        log.info("-----------统计条件为：------------{}",aggregateList.toString());
 
         MongoDatabase hljDb = mongoDbFactory.getDb(ccgpDbName);
         AggregateIterable<Document> hljAggregate = hljDb.getCollection("t_trade_count").aggregate(aggregateList);
@@ -408,7 +408,6 @@ public class MongoDbServiceImpl implements MongoDbService {
             while (cursor.hasNext()) {
                 NameAndCountDto nameAndCountDto = new NameAndCountDto();
                 Document itemDoc = cursor.next();
-
                 Object id = itemDoc.get("_id");
                 nameAndCountDto.setDoc(id);
                 int count = itemDoc.getInteger("totalCounts", 0);
